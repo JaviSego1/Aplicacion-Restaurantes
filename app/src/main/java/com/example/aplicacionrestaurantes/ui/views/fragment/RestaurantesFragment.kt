@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aplicacionrestaurantes.R
 import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.FragmentRestaurantesBinding
@@ -38,7 +37,6 @@ class RestaurantFragment : Fragment(R.layout.fragment_restaurantes) {
     }
 
     private fun setupRecyclerView() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = RestauranteAdapter(emptyList(), ::onDeleteRestaurant, ::onEditRestaurant)
         binding.recyclerView.adapter = adapter
     }
@@ -57,29 +55,52 @@ class RestaurantFragment : Fragment(R.layout.fragment_restaurantes) {
     }
 
     private fun onDeleteRestaurant(restaurante: Restaurante) {
-        val restaurantName = restaurante.titulo  // Usamos 'titulo' para obtener el nombre
-        restaurantViewModel.deleteRestaurant(restaurante.id)  // Usamos el 'id' para eliminar
-        Toast.makeText(
-            requireContext(),
-            "Restaurante eliminado: $restaurantName",
-            Toast.LENGTH_SHORT
-        ).show()
+        // Obtén la posición del restaurante en la lista
+        val position = adapter.getRestaurantes().indexOf(restaurante)
+        if (position != -1) {
+            restaurantViewModel.deleteRestaurant(position)  // Usamos la posición como identificador
+            Toast.makeText(
+                requireContext(),
+                "Restaurante eliminado: ${restaurante.titulo}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
-    private fun onEditRestaurant(restaurant: Restaurant) {
-        val dialog = RestaurantDialogFragmentCU().newInstance(restaurant)
-        dialog.onUpdate = { updatedRestaurant ->
-            restaurantViewModel.editRestaurant(restaurant, updatedRestaurant)
+
+    private fun onEditRestaurant(restaurante: Restaurante) {
+        val dialog = RestaurantDialogFragmentCU.newInstance(restaurante)  // Llamada correcta a newInstance
+        dialog.onUpdate = { updatedRestaurante ->
+            // Convertir Restaurante a Restaurant
+            val oldRestaurant = Restaurant(
+                titulo = restaurante.titulo,
+                descripcion = restaurante.descripcion,
+                imagen = restaurante.imagen
+            )
+            val updatedRestaurant = Restaurant(
+                titulo = updatedRestaurante.titulo,
+                descripcion = updatedRestaurante.descripcion,
+                imagen = updatedRestaurante.imagen
+            )
+            // Pasar ambos objetos al ViewModel
+            restaurantViewModel.editRestaurant(oldRestaurant, updatedRestaurant)
         }
-        dialog.show(parentFragmentManager, "EditRestaurantDialogFragment")
+        dialog.show(parentFragmentManager, "EditRestaurantDialog")
     }
 
     private fun showAddRestaurantDialog() {
         val dialog = RestaurantDialogFragmentCU()
-        dialog.onUpdate = { restaurant ->
+        dialog.onUpdate = { restaurante ->  // restaurante es de tipo Restaurante
+            // Convertir Restaurante a Restaurant
+            val restaurant = Restaurant(
+                titulo = restaurante.titulo,
+                descripcion = restaurante.descripcion,
+                imagen = restaurante.imagen
+            )
+            // Pasar el objeto Restaurant al ViewModel
             restaurantViewModel.addRestaurant(restaurant)
         }
-        dialog.show(parentFragmentManager, "AddRestaurantDialogFg")
+        dialog.show(parentFragmentManager, "AddRestaurantDialog")  // Mostrar el diálogo
     }
 
     private fun observeViewModel() {
@@ -117,4 +138,7 @@ class RestaurantFragment : Fragment(R.layout.fragment_restaurantes) {
             isFirstLoad = false
         }
     }
+
+
+
 }

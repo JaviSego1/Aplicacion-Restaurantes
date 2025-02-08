@@ -7,7 +7,7 @@ import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.ItemRestauranteBinding
 
 class RestauranteAdapter(
-    private var restaurantes: List<Restaurante> = listOf(),
+    private var restaurantes: List<Restaurante> = emptyList(),
     private val onEditClick: (Restaurante) -> Unit,
     private val onEliminarClick: (Restaurante) -> Unit
 ) : RecyclerView.Adapter<RestauranteViewHolder>() {

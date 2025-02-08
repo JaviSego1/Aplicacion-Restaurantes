@@ -29,18 +29,24 @@ class RestaurantInMemoryRepository(
         restaurantService.addRestaurant(newRestaurant)
     }
 
-    override suspend fun delete(id: Int): Boolean {
-        restaurantService.deleteRestaurant(id)
+    override suspend fun delete(position: Int): Boolean {
+        restaurantService.deleteRestaurant(position)
         return true;
     }
 
     override suspend fun edit(oldRestaurant: Restaurant, newRestaurant: Restaurant) {
-        val oldRestaurant = Restaurante(
-            oldRestaurant.titulo, oldRestaurant.descripcion, oldRestaurant.imagen
+        // Convertir Restaurant a Restaurante
+        val oldRestaurante = Restaurante(
+            titulo = oldRestaurant.titulo,
+            descripcion = oldRestaurant.descripcion,
+            imagen = oldRestaurant.imagen
         )
-        val newRestaurant = Restaurante(
-            newRestaurant.titulo, newRestaurant.descripcion, newRestaurant.imagen
+        val newRestaurante = Restaurante(
+            titulo = newRestaurant.titulo,
+            descripcion = newRestaurant.descripcion,
+            imagen = newRestaurant.imagen
         )
-        restaurantService.editRestaurant(oldRestaurant, newRestaurant)
+        // Llamar al servicio para editar el restaurante
+        restaurantService.editRestaurant(oldRestaurante, newRestaurante)
     }
 }

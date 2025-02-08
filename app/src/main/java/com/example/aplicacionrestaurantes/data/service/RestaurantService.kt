@@ -15,8 +15,8 @@ class RestaurantService {
         dataSource.addRestaurant(restaurant)
     }
 
-    suspend fun deleteRestaurant(restaurantId: Int) {
-        dataSource.deleteRestaurant(restaurantId)
+    suspend fun deleteRestaurant(position: Int) {
+        dataSource.deleteRestaurant(position)
     }
 
     suspend fun editRestaurant(oldRestaurant: Restaurante, newRestaurant: Restaurante){
