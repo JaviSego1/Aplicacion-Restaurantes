@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
 
     implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation(libs.androidx.navigation.ui.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
