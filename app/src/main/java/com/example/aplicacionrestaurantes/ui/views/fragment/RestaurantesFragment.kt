@@ -14,7 +14,7 @@ import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
 
-class RestaurantFragment : Fragment(R.layout.fragment_restaurantes) {
+class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
 
     private lateinit var binding: FragmentRestaurantesBinding
     private lateinit var adapter: RestauranteAdapter

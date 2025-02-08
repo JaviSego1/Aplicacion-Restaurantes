@@ -7,8 +7,10 @@
 
     <fragment
         android:id="@+id/restaurantesFragment"
+        android:name="com.example.aplicacionrestaurantes.ui.views.fragment.RestaurantesFragment"
         android:label="fragment_restaurantes"
-        tools:layout="@layout/fragment_restaurantes" >
+        tools:layout="@layout/fragment_restaurantes"
+        >
     </fragment>
 
 </navigation>

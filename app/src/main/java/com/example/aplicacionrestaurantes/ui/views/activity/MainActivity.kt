@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.aplicacionrestaurantes.R
+import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.ActivityMainBinding
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
@@ -27,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var progressBar: ProgressBar
+    private lateinit var restauranteAdapter: RestauranteAdapter
 
     // Inicialización del ViewModel
     private val restaurantViewModel: RestaurantViewModel by viewModels()
@@ -112,7 +116,15 @@ class MainActivity : AppCompatActivity() {
     private fun observeViewModel() {
         // Observar la lista de restaurantes
         restaurantViewModel.restaurantLiveData.observe(this) { restaurants ->
-            restauranteAdapter.submitList(restaurants) // Usa la instancia del adaptador
+            // Convertir List<Restaurant> a List<Restaurante>
+            val restaurantes = restaurants.map { restaurant ->
+                Restaurante(
+                    titulo = restaurant.titulo,
+                    descripcion = restaurant.descripcion,
+                    imagen = restaurant.imagen
+                )
+            }
+            restauranteAdapter.submitList(restaurantes)
         }
 
         // Observar el estado del ProgressBar
