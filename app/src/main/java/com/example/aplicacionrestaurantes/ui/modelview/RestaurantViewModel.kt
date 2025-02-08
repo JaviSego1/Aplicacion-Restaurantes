@@ -9,8 +9,11 @@ import com.example.aplicacionrestaurantes.domain.usercase.DeleteRestaurantUseCas
 import com.example.aplicacionrestaurantes.domain.usercase.EditRestaurantUseCase
 import com.example.aplicacionrestaurantes.domain.usercase.GetRestaurantsUseCase
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
-class RestaurantViewModel(
+@HiltViewModel
+class RestaurantViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val addRestaurantUseCase: AddRestaurantUseCase,
     private val deleteRestaurantUseCase: DeleteRestaurantUseCase,

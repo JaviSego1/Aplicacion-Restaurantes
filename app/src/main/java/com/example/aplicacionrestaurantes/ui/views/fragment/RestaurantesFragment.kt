@@ -13,7 +13,9 @@ import com.example.aplicacionrestaurantes.databinding.FragmentRestaurantesBindin
 import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
 
     private lateinit var binding: FragmentRestaurantesBinding

@@ -22,7 +22,9 @@ import com.example.aplicacionrestaurantes.databinding.ActivityMainBinding
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController

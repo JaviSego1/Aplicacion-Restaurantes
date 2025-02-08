@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.kapt")
 
 }
 
@@ -63,4 +65,11 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.3.2")
     implementation("androidx.activity:activity-ktx:1.2.2")
     implementation("com.github.bumptech.glide:glide:4.15.1")
+
+    // Hilt - Actualizado a la versión más reciente
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
+
+    // Eliminadas dependencias obsoletas de Hilt
+    implementation("androidx.activity:activity-ktx:1.7.2")
 }

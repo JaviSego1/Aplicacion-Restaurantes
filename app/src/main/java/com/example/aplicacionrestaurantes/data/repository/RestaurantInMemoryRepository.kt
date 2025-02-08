@@ -4,8 +4,9 @@ import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.data.service.RestaurantService
 import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.domain.repository.RepositoryInterface
+import javax.inject.Inject
 
-class RestaurantInMemoryRepository(
+class RestaurantInMemoryRepository @Inject constructor(
     private val restaurantService: RestaurantService
 ) : RepositoryInterface<Restaurant> {
 
