@@ -3,7 +3,6 @@ package com.example.aplicacionrestaurantes.ui.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.domain.usercase.AddRestaurantUseCase
 import com.example.aplicacionrestaurantes.domain.usercase.DeleteRestaurantUseCase

@@ -57,6 +57,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.2.2")
     implementation(libs.firebase.auth.ktx)
 
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

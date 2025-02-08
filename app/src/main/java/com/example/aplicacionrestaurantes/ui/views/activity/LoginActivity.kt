@@ -1,11 +1,10 @@
-package com.example.aplicacionrestaurantes
+package com.example.aplicacionrestaurantes.ui.views.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.aplicacionrestaurantes.databinding.ActivityLoginBinding
-import com.example.aplicacionrestaurantes.ui.views.activity.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
