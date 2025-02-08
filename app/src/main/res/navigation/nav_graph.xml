@@ -9,15 +9,6 @@
         android:id="@+id/restaurantesFragment"
         android:label="fragment_restaurantes"
         tools:layout="@layout/fragment_restaurantes" >
-        <action
-            android:id="@+id/action_restaurantesFragment_to_fragmentConfiguracion"
-            app:destination="@id/fragmentConfiguracion" />
-        <action
-            android:id="@+id/action_restaurantesFragment_to_fragmentDetalles"
-            />
-        <action
-            android:id="@+id/action_restaurantesFragment_to_fragmentFiltro"
-            app:destination="@id/fragmentFiltro" />
     </fragment>
 
 </navigation>

@@ -18,9 +18,11 @@ class RestauranteAdapter(
         notifyDataSetChanged()
     }
 
+    fun getRestaurantes(): List<Restaurante> = restaurantes
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestauranteViewHolder {
         val binding = ItemRestauranteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return RestauranteViewHolder(binding) // Pasamos el binding
+        return RestauranteViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: RestauranteViewHolder, position: Int) {

@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.navigation.NavController
@@ -14,6 +17,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.aplicacionrestaurantes.R
 import com.example.aplicacionrestaurantes.databinding.ActivityMainBinding
+import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
+import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +27,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var firebaseAuth: FirebaseAuth
+
+    // Inicialización del ViewModel
+    private val restaurantViewModel: RestaurantViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,76 +40,68 @@ class MainActivity : AppCompatActivity() {
         firebaseAuth = FirebaseAuth.getInstance()
 
         // Verificar si el usuario está logueado
+        checkLoginStatus()
+
+        // Configurar la toolbar
+        setupToolbar()
+
+        // Configuración de Navigation
+        setupNavigation()
+
+        // Observar cambios en el ViewModel
+        observeViewModel()
+    }
+
+    private fun checkLoginStatus() {
         val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
 
         if (!isLoggedIn) {
-            // Redirigir al LoginActivity y limpiar la pila de actividades
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+            redirectToLogin()
         }
+    }
 
-        // Configurar la toolbar
+    private fun redirectToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun setupToolbar() {
         val toolbar = binding.appBarLayoutDrawer.toolbar
         setSupportActionBar(toolbar)
+    }
 
-        // Configuración de Navigation
+    private fun setupNavigation() {
         val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHost.navController
 
         val navView = binding.myNavView
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.restaurantesFragment, R.id.fragmentConfiguracion, R.id.fragmentFiltro), // Destinos principales
-            binding.drawerLayout // DrawerLayout
+            setOf(R.id.restaurantesFragment, R.id.fragmentConfiguracion, R.id.fragmentFiltro),
+            binding.drawerLayout
         )
 
-        // Vincular la toolbar con el navController
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        // Configurar el NavigationView con el navController
         navView.setupWithNavController(navController)
 
-        // Configurar el listener para los ítems del menú en el NavigationView
         navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.fragmentCerrarSesion -> {
-                    // Cerrar sesión con Firebase
-                    firebaseAuth.signOut()
-
-                    // Actualizar SharedPreferences
-                    val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                    sharedPreferences.edit().putBoolean("isLoggedIn", false).apply()
-
-                    // Redirigir al LoginActivity y limpiar la pila de actividades
-                    val intent = Intent(this, LoginActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-
-                    // Cerrar la actividad actual (opcional, dependiendo de tu flujo)
-                    finish()
-
-                    // Cerrar el Drawer
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    logout()
                     true
                 }
                 R.id.restaurantesFragment -> {
-                    // Navegar al fragment Home
-                    navController.navigate(R.id.restaurantesFragment)
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    navigateToFragment(R.id.restaurantesFragment)
                     true
                 }
                 R.id.fragmentConfiguracion -> {
-                    // Navegar al fragment Configuración
-                    navController.navigate(R.id.fragmentConfiguracion)
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    navigateToFragment(R.id.fragmentConfiguracion)
                     true
                 }
                 R.id.fragmentFiltro -> {
-                    // Navegar al fragment Filtro
-                    navController.navigate(R.id.fragmentFiltro)
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    navigateToFragment(R.id.fragmentFiltro)
                     true
                 }
                 else -> false
@@ -109,7 +109,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Este método permite que funcione correctamente el botón de navegación hacia arriba (hamburguesa/retroceso)
+    private fun observeViewModel() {
+        // Observar la lista de restaurantes
+        restaurantViewModel.restaurantLiveData.observe(this) { restaurants ->
+            restauranteAdapter.submitList(restaurants) // Usa la instancia del adaptador
+        }
+
+        // Observar el estado del ProgressBar
+        restaurantViewModel.progressBarLiveData.observe(this) { visible ->
+            progressBar.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
+        // Observar los errores
+        restaurantViewModel.errorLiveData.observe(this) { error ->
+            // Mostrar el error con un Toast
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+    private fun logout() {
+        firebaseAuth.signOut()
+        val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean("isLoggedIn", false).apply()
+        redirectToLogin()
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
+    private fun navigateToFragment(fragmentId: Int) {
+        navController.navigate(fragmentId)
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
@@ -119,30 +151,22 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    // Navegación desde el menú de opciones
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.restaurantesFragment -> {
-                navController.navigate(R.id.restaurantesFragment)
+                navigateToFragment(R.id.restaurantesFragment)
                 true
             }
             R.id.fragmentConfiguracion -> {
-                navController.navigate(R.id.fragmentConfiguracion)
+                navigateToFragment(R.id.fragmentConfiguracion)
                 true
             }
             R.id.fragmentFiltro -> {
-                navController.navigate(R.id.fragmentFiltro)
+                navigateToFragment(R.id.fragmentFiltro)
                 true
             }
             R.id.fragmentCerrarSesion -> {
-                // Cerrar sesión con Firebase
-                firebaseAuth.signOut()
-                val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                sharedPreferences.edit().putBoolean("isLoggedIn", false).apply()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
+                logout()
                 true
             }
             else -> super.onOptionsItemSelected(item)
