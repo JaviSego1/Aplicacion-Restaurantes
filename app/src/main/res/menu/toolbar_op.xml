@@ -3,25 +3,25 @@
 
     <item
         android:id="@+id/restaurantesFragment"
-        android:icon="@drawable/baseline_add_home_24"
+        android:icon="@drawable/menu_restaurantes"
         android:title="Restaurantes"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/fragmentFiltro"
-        android:icon="@drawable/baseline_construction_24"
+        android:icon="@drawable/menu_filtro"
         android:title="Filtro"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/fragmentConfiguracion"
-        android:icon="@drawable/baseline_construction_24"
+        android:icon="@drawable/menu_settings"
         android:title="Configuracion"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/fragmentCerrarSesion"
-        android:icon="@drawable/baseline_construction_24"
+        android:icon="@drawable/menu_logout"
         android:title="Cerrar Sesion"
         app:showAsAction="never" />
 </menu>
