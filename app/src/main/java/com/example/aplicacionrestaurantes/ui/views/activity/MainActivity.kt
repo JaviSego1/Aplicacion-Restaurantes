@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
         val navView = binding.myNavView
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.restaurantesFragment, R.id.fragmentConfiguracion, R.id.fragmentFiltro),
+            setOf(R.id.restaurantesFragment),
             binding.drawerLayout
         )
 
