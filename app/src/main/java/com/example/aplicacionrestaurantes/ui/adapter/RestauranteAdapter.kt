@@ -27,7 +27,7 @@ class RestauranteAdapter(
 
     override fun onBindViewHolder(holder: RestauranteViewHolder, position: Int) {
         val restaurante = restaurantes[position]
-        holder.bind(restaurante, onEditClick, onEliminarClick)
+        holder.bind(restaurante, onEliminarClick, onEditClick)
     }
 
     override fun getItemCount(): Int = restaurantes.size

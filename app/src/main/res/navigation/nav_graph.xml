@@ -9,8 +9,41 @@
         android:id="@+id/restaurantesFragment"
         android:name="com.example.aplicacionrestaurantes.ui.views.fragment.RestaurantesFragment"
         android:label="Restaurantes"
-        tools:layout="@layout/fragment_restaurantes"
-        >
+        tools:layout="@layout/fragment_restaurantes">
+
+        <action
+            android:id="@+id/action_restaurantesFragment_to_filtroFragment"
+            app:destination="@id/fragmentFiltro"
+            app:popUpTo="@id/restaurantesFragment"
+            app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_restaurantesFragment_to_configuracionFragment"
+            app:destination="@id/fragmentConfiguracion"
+            app:popUpTo="@id/restaurantesFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentFiltro"
+        android:name="com.example.aplicacionrestaurantes.ui.views.fragment.fragmentFiltro"
+        android:label="Filtro"
+        tools:layout="@layout/fragment_filtro">
+
+        <action
+            android:id="@+id/action_filtroFragment_to_restaurantesFragment"
+            app:destination="@id/restaurantesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentConfiguracion"
+        android:name="com.example.aplicacionrestaurantes.ui.views.fragment.fragmentConfiguracion"
+        android:label="Configuración"
+        tools:layout="@layout/fragment_configuracion">
+
+        <action
+            android:id="@+id/action_configuracionFragment_to_restaurantesFragment"
+            app:destination="@id/restaurantesFragment" />
     </fragment>
 
 </navigation>

@@ -34,7 +34,6 @@ class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
         setupRecyclerView()
         observeViewModel()
         setupAddButton()
-        setupLogoutButton()
 
         return binding.root
     }
@@ -49,13 +48,6 @@ class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
     private fun setupAddButton() {
         binding.btnAgregar.setOnClickListener {
             showAddRestaurantDialog()
-        }
-    }
-
-    private fun setupLogoutButton() {
-        binding.btnVolver.setOnClickListener {
-            // Implementar lógica para cerrar sesión
-            Toast.makeText(requireContext(), "Cerrando sesión...", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -44,5 +44,11 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.btnRegistro.setOnClickListener {
+            val intent = Intent(this, RegistroActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 }
