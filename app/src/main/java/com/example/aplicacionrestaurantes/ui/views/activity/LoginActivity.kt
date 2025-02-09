@@ -32,16 +32,16 @@ class LoginActivity : AppCompatActivity() {
                             sharedPreferences.edit().putBoolean("isLoggedIn", true).apply()
 
                             // Redirigir a MainActivity
-                            val intent = Intent(this, MainActivity::class.java)
+                            val intent = Intent(    this, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
                             finish()
                         } else {
-                            Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Error: Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                         }
                     }
             } else {
-                Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, ingresa tu correo y contraseña", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -50,5 +50,35 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.btnRecuperar.setOnClickListener {
+            val email = binding.etUser.text.toString().trim()
+            if (email.isNotEmpty()) {
+                recuperarContrasena(email)
+            } else {
+                Toast.makeText(this, "Ingrese el correo electrónico para recuperar la contraseña", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+    // Función para recuperar contraseña
+    private fun recuperarContrasena(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(
+                        this,
+                        "Correo de recuperación de contraseña enviado",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Error: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+    }
+
+
 }

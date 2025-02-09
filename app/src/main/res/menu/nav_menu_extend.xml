@@ -6,20 +6,20 @@
     <group android:checkableBehavior="single">
         <item android:title="Restaurantes"
             android:id="@+id/restaurantesFragment"
-            android:icon="@drawable/baseline_add_home_24"
+            android:icon="@drawable/menu_restaurantes"
             />
         <item android:title="Filtro"
             android:id="@+id/fragmentFiltro"
-            android:icon="@drawable/baseline_cloudy_snowing_24"
+            android:icon="@drawable/menu_filtro"
             />
         <item android:title="Configuration"
             android:id="@+id/fragmentConfiguracion"
-            android:icon="@drawable/baseline_construction_24"
+            android:icon="@drawable/menu_settings"
             />
 
         <item android:title="Cerrar Sesion"
             android:id="@+id/fragmentCerrarSesion"
-            android:icon="@drawable/baseline_construction_24"
+            android:icon="@drawable/menu_logout"
             />
     </group>
 </menu>
