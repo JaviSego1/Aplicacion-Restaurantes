@@ -12,13 +12,20 @@ class RestauranteViewHolder(private val binding: ItemRestauranteBinding) : Recyc
         binding.titulo.text = restaurante.titulo
         binding.descripcion.text = restaurante.descripcion
 
-        // Cargar imagen usando Glide desde los recursos locales (drawable)
-        val resId = binding.imagenRestaurante.context.resources.getIdentifier(
-            restaurante.imagen, "drawable", binding.imagenRestaurante.context.packageName)
-        Glide.with(itemView.context)
-            .load(resId) // Usamos el identificador del recurso drawable
-            .centerCrop()
-            .into(binding.imagenRestaurante)
+        // Cargar imagen usando Glide desde los recursos locales (drawable) o la imagen seleccionada/capturada
+        if (restaurante.imagen.startsWith("http")) {
+            Glide.with(itemView.context)
+                .load(restaurante.imagen) // Usamos URL de la imagen
+                .centerCrop()
+                .into(binding.imagenRestaurante)
+        } else {
+            val resId = binding.imagenRestaurante.context.resources.getIdentifier(
+                restaurante.imagen, "drawable", binding.imagenRestaurante.context.packageName)
+            Glide.with(itemView.context)
+                .load(resId) // Usamos el identificador del recurso drawable
+                .centerCrop()
+                .into(binding.imagenRestaurante)
+        }
 
         // Configurar los clics para editar y eliminar
         binding.imagenEliminar.setOnClickListener {
@@ -30,3 +37,4 @@ class RestauranteViewHolder(private val binding: ItemRestauranteBinding) : Recyc
         }
     }
 }
+

@@ -64,7 +64,6 @@ class RestaurantViewModel @Inject constructor(
         }
     }
 
-
     // Función para editar un restaurante
     fun editRestaurant(oldRestaurant: Restaurant, newRestaurant: Restaurant) {
         viewModelScope.launch {
@@ -77,3 +76,4 @@ class RestaurantViewModel @Inject constructor(
         }
     }
 }
+

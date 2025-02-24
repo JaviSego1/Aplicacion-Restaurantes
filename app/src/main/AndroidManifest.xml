@@ -2,6 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permiso para acceso a Internet (si es necesario) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permiso para acceder a la cámara -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Permiso para escribir en el almacenamiento externo (necesario para guardar imágenes) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Permiso para leer desde el almacenamiento externo -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Requerir la cámara hardware -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <!-- Aplicación principal -->
     <application
         android:name=".ui.views.activity.RestauranteApiAplication"
         android:allowBackup="true"
@@ -13,22 +31,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AplicacionRestaurantes"
         tools:targetApi="31">
+
+        <!-- Actividad principal -->
         <activity
             android:name=".ui.views.activity.MainActivity"
             android:exported="false">
         </activity>
+
+        <!-- Actividad de registro -->
         <activity
             android:name=".ui.views.activity.RegistroActivity"
             android:exported="false" />
+
+        <!-- Actividad de login -->
         <activity
             android:name=".ui.views.activity.LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
