@@ -6,10 +6,11 @@ import android.app.Dialog
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.view.LayoutInflater
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,8 +18,6 @@ import androidx.fragment.app.DialogFragment
 import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.DialogRestauranteBinding
 import java.io.ByteArrayOutputStream
-import android.graphics.Bitmap
-import android.util.Base64
 
 class RestaurantDialogFragmentCU : DialogFragment() {
 
@@ -92,8 +91,8 @@ class RestaurantDialogFragmentCU : DialogFragment() {
             return
         }
 
+        // Convertir la imagen seleccionada a Base64 si se ha seleccionado una imagen
         val imagen = if (imageBitmap != null) {
-            // Convertir la imagen a Base64 (puedes implementarlo en el futuro)
             convertBitmapToBase64(imageBitmap)
         } else {
             "android.resource://${requireContext().packageName}/drawable/alchemist" // Imagen por defecto
