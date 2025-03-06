@@ -24,6 +24,7 @@
     <!-- Aplicación principal -->
     <application
         android:name=".ui.views.activity.RestauranteApiAplication"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

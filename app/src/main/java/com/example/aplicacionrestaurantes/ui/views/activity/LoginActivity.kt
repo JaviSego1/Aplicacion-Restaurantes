@@ -1,84 +1,70 @@
 package com.example.aplicacionrestaurantes.ui.views.activity
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.aplicacionrestaurantes.data.models.AuthResponse
+import com.example.aplicacionrestaurantes.data.service.LoginRequest
+import com.example.aplicacionrestaurantes.data.service.RetrofitClient
 import com.example.aplicacionrestaurantes.databinding.ActivityLoginBinding
-import com.google.firebase.auth.FirebaseAuth
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
+        sharedPreferences = getSharedPreferences("login-info", MODE_PRIVATE)
 
-        binding.btnValidate.setOnClickListener {
-            val email = binding.etUser.text.toString()
+        binding.btnRegistro.setOnClickListener{
+            startActivity(Intent(this, RegistroActivity::class.java))
+        }
+
+        binding.btnValidate.setOnClickListener{
+            val email = binding.etUser.text.toString().trim()
             val password = binding.etPass.text.toString()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // Guardar el estado de sesión en SharedPreferences
-                            val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                            sharedPreferences.edit().putBoolean("isLoggedIn", true).apply()
+            if (email.isEmpty() || password.isEmpty()){
+                Toast.makeText(this, "Rellena todos los campos", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
 
-                            // Redirigir a MainActivity
-                            val intent = Intent(    this, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
+            val loginRequest = LoginRequest(email, password)
+            RetrofitClient.apiService.login(loginRequest).enqueue(object: Callback<AuthResponse> {
+                override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                    if (response.isSuccessful) {
+                        val token = response.body()?.token
+                        token?.let {
+                            saveToken(it)
+                            Toast.makeText(this@LoginActivity, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finish()
-                        } else {
-                            Toast.makeText(this, "Error: Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                         }
+                    } else {
+                        Toast.makeText(this@LoginActivity, "Correo o contraseña incorrectos", Toast.LENGTH_LONG).show()
                     }
-            } else {
-                Toast.makeText(this, "Por favor, ingresa tu correo y contraseña", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.btnRegistro.setOnClickListener {
-            val intent = Intent(this, RegistroActivity::class.java)
-            startActivity(intent)
-        }
-
-        binding.btnRecuperar.setOnClickListener {
-            val email = binding.etUser.text.toString().trim()
-            if (email.isNotEmpty()) {
-                recuperarContrasena(email)
-            } else {
-                Toast.makeText(this, "Ingrese el correo electrónico para recuperar la contraseña", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // Función para recuperar contraseña
-    private fun recuperarContrasena(email: String) {
-        firebaseAuth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(
-                        this,
-                        "Correo de recuperación de contraseña enviado",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    Toast.makeText(
-                        this,
-                        "Error: ${task.exception?.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
-            }
+
+                override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                    Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+        }
     }
 
-
+    // Función para guardar el token en SharedPreferences
+    private fun saveToken(token: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString("jwt_token", token)
+        editor.apply()
+    }
 }

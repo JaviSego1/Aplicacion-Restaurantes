@@ -6,35 +6,39 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.aplicacionrestaurantes.databinding.ActivityRegistroBinding
-import com.google.firebase.auth.FirebaseAuth
+import com.example.aplicacionrestaurantes.data.models.Usuario
+import com.example.aplicacionrestaurantes.data.service.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RegistroActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistroBinding
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        auth = FirebaseAuth.getInstance()
-
         binding.btnRegistro.setOnClickListener {
-            val email = binding.editEmail.text.toString()
-            val password = binding.editPassword.text.toString()
-            val confirmPassword = binding.editConfirmPassword.text.toString()
+            val name = binding.editName.text.toString().trim()
+            val email = binding.editEmail.text.toString().trim()
+            val password = binding.editPassword.text.toString().trim()
+            val confirmPassword = binding.editConfirmPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            // Validación de los campos
+            if (email.isEmpty() || name.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show()
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 Toast.makeText(this, "Correo electrónico inválido", Toast.LENGTH_SHORT).show()
             } else if (password != confirmPassword) {
                 Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
             } else if (password.length < 6) {
-                Toast.makeText(this, "La contraseña debe tener al menos 7 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
             } else {
-                registerUser(email, password)
+                val usuario = Usuario(name = name, email = email, password = password) // Crear objeto User
+                registerUser(usuario)
             }
         }
 
@@ -45,27 +49,23 @@ class RegistroActivity : AppCompatActivity() {
         }
     }
 
-    private fun registerUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    user?.sendEmailVerification()?.addOnCompleteListener { verificationTask ->
-                        if (verificationTask.isSuccessful) {
-                            Toast.makeText(this, "Registro exitoso. Verifica tu correo para iniciar sesión.", Toast.LENGTH_LONG).show()
-                            val intent = Intent(this, LoginActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            Toast.makeText(this, "Error al enviar correo de verificación.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+    private fun registerUser(user: Usuario) {
+        // Hacer la petición de registro utilizando Retrofit
+        RetrofitClient.apiService.register(user).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@RegistroActivity, "Registro exitoso, inicia sesión", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this@RegistroActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
-                    Toast.makeText(this, "Error al registrar usuario: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RegistroActivity, "Error al registrarse con el usuario", Toast.LENGTH_LONG).show()
                 }
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(this@RegistroActivity, "Error: ${t.message}", Toast.LENGTH_LONG).show()
             }
+        })
     }
 }
