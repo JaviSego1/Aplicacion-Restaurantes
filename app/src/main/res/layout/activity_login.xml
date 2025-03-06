@@ -36,6 +36,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.061" />
 
+    <!-- Campo para el nombre -->
+
+    <EditText
+        android:id="@+id/etNombre"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/edittext_background"
+        android:hint="Nombre"
+        android:inputType="text"
+        android:padding="10dp"
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nombreApp" />
+
     <EditText
         android:id="@+id/etUser"
         android:layout_width="300dp"
@@ -46,11 +64,11 @@
         android:padding="10dp"
         android:textColor="@android:color/black"
         android:textColorHint="@android:color/darker_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.338" />
+        android:layout_marginTop="16dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/etNombre"
+    app:layout_constraintHorizontal_bias="0.5" />
 
     <EditText
         android:id="@+id/etPass"
@@ -62,11 +80,11 @@
         android:padding="10dp"
         android:textColor="@android:color/black"
         android:textColorHint="@android:color/darker_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.447" />
+        android:layout_marginTop="16dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/etUser"
+    app:layout_constraintHorizontal_bias="0.5" />
 
     <Button
         android:id="@+id/btnValidate"

@@ -30,15 +30,16 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnValidate.setOnClickListener{
+            val name = binding.etNombre.text.toString().trim()
             val email = binding.etUser.text.toString().trim()
             val password = binding.etPass.text.toString()
 
-            if (email.isEmpty() || password.isEmpty()){
+            if (email.isEmpty() || password.isEmpty() || name.isEmpty()){
                 Toast.makeText(this, "Rellena todos los campos", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            val loginRequest = LoginRequest(email, password)
+            val loginRequest = LoginRequest(name, email, password)
             RetrofitClient.apiService.login(loginRequest).enqueue(object: Callback<AuthResponse> {
                 override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                     if (response.isSuccessful) {
@@ -46,7 +47,8 @@ class LoginActivity : AppCompatActivity() {
                         token?.let {
                             saveToken(it)
                             Toast.makeText(this@LoginActivity, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            startActivity(intent)
                             finish()
                         }
                     } else {
