@@ -3,6 +3,7 @@ package com.example.aplicacionrestaurantes.ui.views.activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.aplicacionrestaurantes.data.models.AuthResponse
@@ -47,8 +48,7 @@ class LoginActivity : AppCompatActivity() {
                         token?.let {
                             saveToken(it)
                             Toast.makeText(this@LoginActivity, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            startActivity(intent)
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finish()
                         }
                     } else {
@@ -68,5 +68,7 @@ class LoginActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.putString("jwt_token", token)
         editor.apply()
+
+        Log.d("LoginActivity", "Token guardado: $token")
     }
 }

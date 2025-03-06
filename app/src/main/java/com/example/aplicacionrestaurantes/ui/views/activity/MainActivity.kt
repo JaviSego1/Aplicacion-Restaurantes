@@ -21,7 +21,6 @@ import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.ActivityMainBinding
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var progressBar: ProgressBar
     private lateinit var restauranteAdapter: RestauranteAdapter
 
@@ -39,13 +37,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
-
-        // Verificar si el usuario está logueado
+        // Verificar si el usuario tiene un token JWT válido
         checkLoginStatus()
 
         // Configurar la toolbar
@@ -59,11 +54,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkLoginStatus() {
-        val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+        val sharedPreferences = getSharedPreferences("login-info", MODE_PRIVATE)
+        val token = sharedPreferences.getString("jwt_token", null)
 
-        if (!isLoggedIn) {
+        if (token.isNullOrEmpty()) {
             redirectToLogin()
+        } else {
+            Toast.makeText(this, "Usuario autenticado", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -116,9 +113,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        // Observar la lista de restaurantes
         restaurantViewModel.restaurantLiveData.observe(this) { restaurants ->
-            // Convertir List<Restaurant> a List<Restaurante>
             val restaurantes = restaurants.map { restaurant ->
                 Restaurante(
                     titulo = restaurant.titulo,
@@ -129,24 +124,18 @@ class MainActivity : AppCompatActivity() {
             restauranteAdapter.submitList(restaurantes)
         }
 
-        // Observar el estado del ProgressBar
         restaurantViewModel.progressBarLiveData.observe(this) { visible ->
             progressBar.visibility = if (visible) View.VISIBLE else View.GONE
         }
 
-        // Observar los errores
         restaurantViewModel.errorLiveData.observe(this) { error ->
-            // Mostrar el error con un Toast
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
         }
     }
 
-
-
     private fun logout() {
-        firebaseAuth.signOut()
-        val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        sharedPreferences.edit().putBoolean("isLoggedIn", false).apply()
+        val sharedPreferences = getSharedPreferences("login-info", MODE_PRIVATE)
+        sharedPreferences.edit().remove("jwt_token").apply()
         redirectToLogin()
         binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
