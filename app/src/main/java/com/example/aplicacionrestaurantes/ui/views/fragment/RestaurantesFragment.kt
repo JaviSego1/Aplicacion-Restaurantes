@@ -68,6 +68,8 @@ class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
             restaurantViewModel.editRestaurant(restaurant.id, updatedRestaurante) // Editamos el restaurante con su id
         }
         dialog.show(parentFragmentManager, "EditRestaurantDialog")
+        setupRecyclerView()
+
     }
 
     private fun showAddRestaurantDialog() {
