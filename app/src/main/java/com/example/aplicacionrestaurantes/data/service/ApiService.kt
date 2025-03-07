@@ -10,16 +10,16 @@ import retrofit2.http.*
 interface ApiService {
 
     @GET("restaurantes")
-    fun getRestaurantes(): Response<List<Restaurante>>
+    suspend fun getRestaurantes(): Response<List<Restaurante>>
 
     @POST("restaurantes/add")
-    fun addRestaurante(@Body review: Restaurante): Response<Unit>
+    suspend fun addRestaurante(@Body review: Restaurante): Response<Unit>
 
     @PATCH("restaurantes/edit/{id}")
-    fun editRestaurante(@Path("id") id: Int, @Body review: Restaurante): Response<Unit>
+    suspend fun editRestaurante(@Path("id") id: Int, @Body review: Restaurante): Response<Unit>
 
     @DELETE("restaurantes/del/{id}")
-    fun deleteRestaurante(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteRestaurante(@Path("id") id: Int): Response<Unit>
 
     @POST("usuarios/login")
     fun login(@Body loginRequest: LoginRequest): Call<AuthResponse>

@@ -51,7 +51,7 @@ class RegistroActivity : AppCompatActivity() {
 
     private fun registerUser(user: Usuario) {
         // Hacer la petición de registro utilizando Retrofit
-        RetrofitClient.apiService.register(user).enqueue(object : Callback<Void> {
+        RetrofitClient.provideApiService().register(user).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@RegistroActivity, "Registro exitoso, inicia sesión", Toast.LENGTH_LONG).show()

@@ -17,8 +17,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.aplicacionrestaurantes.R
-import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.ActivityMainBinding
+import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
 import com.example.aplicacionrestaurantes.ui.viewmodel.RestaurantViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var progressBar: ProgressBar
     private lateinit var restauranteAdapter: RestauranteAdapter
 
     // Inicialización del ViewModel
@@ -39,6 +38,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Inicializa el ProgressBar desde ViewBinding
+        val progressBar = binding.progressBar // Referencia directa al ProgressBar
 
         // Verificar si el usuario tiene un token JWT válido
         checkLoginStatus()
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
 
         // Observar cambios en el ViewModel
-        observeViewModel()
+        observeViewModel(progressBar)  // Pasa el ProgressBar a la función de observación
     }
 
     private fun checkLoginStatus() {
@@ -112,16 +114,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun observeViewModel() {
+    private fun observeViewModel(progressBar: ProgressBar) {
         restaurantViewModel.restaurantLiveData.observe(this) { restaurants ->
-            val restaurantes = restaurants.map { restaurant ->
-                Restaurante(
+            val restaurants = restaurants.map { restaurant ->
+                Restaurant(
+                    id = restaurant.id,
                     titulo = restaurant.titulo,
                     descripcion = restaurant.descripcion,
                     imagen = restaurant.imagen
                 )
             }
-            restauranteAdapter.submitList(restaurantes)
+            restauranteAdapter.submitList(restaurants)
         }
 
         restaurantViewModel.progressBarLiveData.observe(this) { visible ->

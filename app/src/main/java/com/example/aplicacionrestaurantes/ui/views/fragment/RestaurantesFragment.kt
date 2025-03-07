@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aplicacionrestaurantes.R
-import com.example.aplicacionrestaurantes.data.models.Restaurante
 import com.example.aplicacionrestaurantes.databinding.FragmentRestaurantesBinding
 import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.ui.adapter.RestauranteAdapter
@@ -39,9 +38,9 @@ class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
     }
 
     private fun setupRecyclerView() {
-        adapter = RestauranteAdapter(emptyList(), ::onDeleteRestaurant, ::onEditRestaurant)
+        // Se asume que el adaptador está usando una lista de tipo Restaurante
+        adapter = RestauranteAdapter(::onDeleteRestaurant, ::onEditRestaurant)
         binding.recyclerView.adapter = adapter
-
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
@@ -51,91 +50,56 @@ class RestaurantesFragment : Fragment(R.layout.fragment_restaurantes) {
         }
     }
 
-    private fun onDeleteRestaurant(restaurante: Restaurante) {
-        // Obtén la posición del restaurante en la lista
-        val position = adapter.getRestaurantes().indexOf(restaurante)
+    private fun onDeleteRestaurant(restaurant: Restaurant) {
+        val position = adapter.getRestaurantes().indexOf(restaurant)
         if (position != -1) {
-            restaurantViewModel.deleteRestaurant(position)  // Usamos la posición como identificador
+            restaurantViewModel.deleteRestaurant(restaurant.id)  // Usamos el id del restaurante para eliminarlo
             Toast.makeText(
                 requireContext(),
-                "Restaurante eliminado: ${restaurante.titulo}",
+                "Restaurante eliminado: ${restaurant.titulo}",
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 
-
-    private fun onEditRestaurant(restaurante: Restaurante) {
-        val dialog = RestaurantDialogFragmentCU.newInstance(restaurante)  // Llamada correcta a newInstance
+    private fun onEditRestaurant(restaurant: Restaurant) {
+        val dialog = RestaurantDialogFragmentCU.newInstance(restaurant)
         dialog.onUpdate = { updatedRestaurante ->
-            // Convertir Restaurante a Restaurant
-            val oldRestaurant = Restaurant(
-                titulo = restaurante.titulo,
-                descripcion = restaurante.descripcion,
-                imagen = restaurante.imagen
-            )
-            val updatedRestaurant = Restaurant(
-                titulo = updatedRestaurante.titulo,
-                descripcion = updatedRestaurante.descripcion,
-                imagen = updatedRestaurante.imagen
-            )
-            // Pasar ambos objetos al ViewModel
-            restaurantViewModel.editRestaurant(oldRestaurant, updatedRestaurant)
+            restaurantViewModel.editRestaurant(restaurant.id, updatedRestaurante) // Editamos el restaurante con su id
         }
         dialog.show(parentFragmentManager, "EditRestaurantDialog")
     }
 
     private fun showAddRestaurantDialog() {
         val dialog = RestaurantDialogFragmentCU()
-        dialog.onUpdate = { restaurante ->  // restaurante es de tipo Restaurante
-            // Convertir Restaurante a Restaurant
-            val restaurant = Restaurant(
-                titulo = restaurante.titulo,
-                descripcion = restaurante.descripcion,
-                imagen = restaurante.imagen
-            )
-            // Pasar el objeto Restaurant al ViewModel
-            restaurantViewModel.addRestaurant(restaurant)
+        dialog.onUpdate = { restaurante ->
+            restaurantViewModel.addRestaurant(restaurante)  // Pasamos el objeto Restaurante al ViewModel
         }
-        dialog.show(parentFragmentManager, "AddRestaurantDialog")  // Mostrar el diálogo
+        dialog.show(parentFragmentManager, "AddRestaurantDialog")
     }
 
     private fun observeViewModel() {
+        // Aquí se cambia "restaurants" por "restaurantLiveData" para que coincida con el LiveData en el ViewModel
         restaurantViewModel.restaurantLiveData.observe(viewLifecycleOwner) { restaurants ->
             if (restaurants.isNotEmpty()) {
                 updateRestaurantList(restaurants)
+            } else {
+                Toast.makeText(requireContext(), "No se encontraron restaurantes", Toast.LENGTH_SHORT).show()
             }
         }
-        loadData()
-    }
-
-    private fun loadData() {
-        restaurantViewModel.getRestaurants()
     }
 
     private fun updateRestaurantList(restaurants: List<Restaurant>) {
-        // Convertimos la lista de Restaurant a Restaurante
-        val restaurantesList = restaurants.map { restaurant ->
-            Restaurante(
-                titulo = restaurant.titulo,
-                descripcion = restaurant.descripcion,
-                imagen = restaurant.imagen
-            )
-        }
+        if (adapter.itemCount != restaurants.size) {
+            adapter.submitList(restaurants)  // Actualiza la lista utilizando submitList
 
-        if (adapter.itemCount != restaurantesList.size) {
-            adapter.submitList(restaurantesList)  // Actualiza la lista utilizando submitList
-
-            if (!isFirstLoad && restaurantesList.size > adapter.itemCount) {
+            if (!isFirstLoad && restaurants.size > adapter.itemCount) {
                 binding.recyclerView.post {
-                    binding.recyclerView.smoothScrollToPosition(restaurantesList.size - 1)
+                    binding.recyclerView.smoothScrollToPosition(restaurants.size - 1)
                 }
             }
 
             isFirstLoad = false
         }
     }
-
-
-
 }

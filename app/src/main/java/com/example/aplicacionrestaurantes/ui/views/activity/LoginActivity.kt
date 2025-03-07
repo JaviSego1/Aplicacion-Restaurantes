@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             val loginRequest = LoginRequest(name, email, password)
-            RetrofitClient.apiService.login(loginRequest).enqueue(object: Callback<AuthResponse> {
+            RetrofitClient.provideApiService().login(loginRequest).enqueue(object: Callback<AuthResponse> {
                 override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                     if (response.isSuccessful) {
                         val token = response.body()?.token

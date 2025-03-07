@@ -4,8 +4,8 @@ import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import com.example.aplicacionrestaurantes.domain.repository.RepositoryInterface
 import javax.inject.Inject
 
-class AddRestaurantUseCase @Inject constructor(private val repository: RepositoryInterface<Restaurant>) {
-    suspend operator fun invoke(restaurant: Restaurant) {
-        repository.add(restaurant)
+class AddRestaurantUseCase @Inject constructor(private val repositoryInterface: RepositoryInterface) {
+    suspend fun execute(restaurant: Restaurant): Boolean {
+        return repositoryInterface.add(restaurant)  // No necesitamos un valor de retorno
     }
 }

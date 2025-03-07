@@ -21,24 +21,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.example.aplicacionrestaurantes.databinding.DialogRestauranteBinding
-import com.example.aplicacionrestaurantes.data.models.Restaurante
+import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import java.io.ByteArrayOutputStream
 
 class RestaurantDialogFragmentCU : DialogFragment() {
 
     private lateinit var binding: DialogRestauranteBinding
-    private var currentRestaurant: Restaurante? = null
+    private var currentRestaurant: Restaurant? = null
     private var selectedImageUri: Uri? = null
 
     // Callback para notificar al fragmento cuando se confirme la acción
-    var onUpdate: ((Restaurante) -> Unit)? = null
+    var onUpdate: ((Restaurant) -> Unit)? = null
 
     companion object {
-
-        // Método para crear una nueva instancia del diálogo con un restaurante existente (edición)
-        fun newInstance(restaurante: Restaurante): RestaurantDialogFragmentCU {
+        fun newInstance(restaurant: Restaurant): RestaurantDialogFragmentCU {
             val args = Bundle()
-            args.putSerializable("restaurante", restaurante)
+            args.putSerializable("restaurant", restaurant)
             val fragment = RestaurantDialogFragmentCU()
             fragment.arguments = args
             return fragment
@@ -46,60 +44,41 @@ class RestaurantDialogFragmentCU : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        // Inflar el layout del diálogo
         binding = DialogRestauranteBinding.inflate(LayoutInflater.from(requireContext()))
+        currentRestaurant = arguments?.getSerializable("restaurant") as? Restaurant
 
-        // Obtener el restaurante actual (si se está editando)
-        currentRestaurant = arguments?.getSerializable("restaurante") as? Restaurante
-
-        // Si hay un restaurante actual, llenar los campos con sus datos
-        currentRestaurant?.let { restaurante ->
-            binding.edtTitulo.setText(restaurante.titulo)
-            binding.edtDescripcion.setText(restaurante.descripcion)
-            // Cargar la imagen si existe
-            if (restaurante.imagen.startsWith("data:image")) {
-                val imageBytes = Base64.decode(restaurante.imagen.split(",")[1], Base64.DEFAULT)
+        currentRestaurant?.let { restaurant ->
+            binding.edtTitulo.setText(restaurant.titulo)
+            binding.edtDescripcion.setText(restaurant.descripcion)
+            if (restaurant.imagen.startsWith("data:image")) {
+                val imageBytes = Base64.decode(restaurant.imagen.split(",")[1], Base64.DEFAULT)
                 val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                 binding.imgRestaurante.setImageBitmap(bitmap)
             } else {
-                loadImageFromResource(restaurante.imagen)
+                loadImageFromResource(restaurant.imagen)
             }
         }
 
-        // Configurar los botones
-        binding.btnTomarFoto.setOnClickListener {
-            checkCameraPermission()
-        }
+        binding.btnTomarFoto.setOnClickListener { checkCameraPermission() }
+        binding.btnSeleccionarGaleria.setOnClickListener { checkMediaPermission() }
 
-        binding.btnSeleccionarGaleria.setOnClickListener {
-            checkMediaPermission()
-        }
-
-        // Configurar el diálogo
         return AlertDialog.Builder(requireContext())
             .setView(binding.root)
-            .setTitle(if (currentRestaurant == null) "Agregar Restaurante" else "Editar Restaurante")
-            .setPositiveButton("Guardar") { _, _ ->
-                saveRestaurant()
-            }
-            .setNegativeButton("Cancelar") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setTitle(if (currentRestaurant == null) "Agregar Restaurant" else "Editar Restaurant")
+            .setPositiveButton("Guardar") { _, _ -> saveRestaurant() }
+            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
             .create()
     }
 
     private fun saveRestaurant() {
-        // Obtener los valores de los campos
         val titulo = binding.edtTitulo.text.toString()
         val descripcion = binding.edtDescripcion.text.toString()
 
-        // Validar que los campos no estén vacíos
         if (titulo.isEmpty() || descripcion.isEmpty()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Convertir la imagen seleccionada a Base64 si se ha seleccionado una imagen
         val imagen = selectedImageUri?.let { uri ->
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
@@ -110,22 +89,19 @@ class RestaurantDialogFragmentCU : DialogFragment() {
             }
         } ?: currentRestaurant?.imagen ?: "android.resource://${requireContext().packageName}/drawable/alchemist"
 
-        // Crear un nuevo objeto Restaurante con los datos ingresados
-        val restaurante = Restaurante(
+        val restaurant = Restaurant(
+            id = currentRestaurant?.id ?: 0,
             titulo = titulo,
             descripcion = descripcion,
             imagen = imagen
         )
 
-        // Notificar al fragmento que se ha confirmado la acción
-        onUpdate?.invoke(restaurante)
+        onUpdate?.invoke(restaurant)
     }
 
     private fun loadImageFromResource(imagen: String) {
         val resId = context?.resources?.getIdentifier(imagen, "drawable", context?.packageName)
-        resId?.let {
-            binding.imgRestaurante.setImageResource(it)
-        }
+        resId?.let { binding.imgRestaurante.setImageResource(it) }
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {
@@ -138,37 +114,21 @@ class RestaurantDialogFragmentCU : DialogFragment() {
     private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             selectedImageUri = result.data?.data
-            selectedImageUri?.let { uri ->
-                binding.imgRestaurante.setImageURI(uri)
-            }
+            selectedImageUri?.let { uri -> binding.imgRestaurante.setImageURI(uri) }
         }
     }
 
     private fun openImageSelector() {
-        val intent = Intent(Intent.ACTION_PICK).apply {
-            type = "image/*"
-        }
+        val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
         imagePickerLauncher.launch(intent)
     }
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            openCamera()
-        } else {
-            Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
-        }
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) openCamera() else Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
     }
 
-    private val requestMediaPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            openImageSelector()
-        } else {
-            Toast.makeText(requireContext(), "Permiso de acceso a medios denegado", Toast.LENGTH_SHORT).show()
-        }
+    private val requestMediaPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) openImageSelector() else Toast.makeText(requireContext(), "Permiso de acceso a medios denegado", Toast.LENGTH_SHORT).show()
     }
 
     private fun checkCameraPermission() {
@@ -218,9 +178,7 @@ class RestaurantDialogFragmentCU : DialogFragment() {
         val uri = requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
         uri?.let {
             val outputStream = requireContext().contentResolver.openOutputStream(it)
-            outputStream?.use { stream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-            }
+            outputStream?.use { stream -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream) }
         }
         return uri
     }
