@@ -64,7 +64,7 @@ class RestaurantDialogFragmentCU : DialogFragment() {
 
         return AlertDialog.Builder(requireContext())
             .setView(binding.root)
-            .setTitle(if (currentRestaurant == null) "Agregar Restaurant" else "Editar Restaurant")
+            .setTitle(if (currentRestaurant == null) "Agregar Restaurante" else "Editar Restaurante")
             .setPositiveButton("Guardar") { _, _ -> saveRestaurant() }
             .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
             .create()

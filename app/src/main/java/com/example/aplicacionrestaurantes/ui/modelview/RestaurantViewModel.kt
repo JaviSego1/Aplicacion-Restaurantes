@@ -43,9 +43,6 @@ class RestaurantViewModel @Inject constructor(
         _progressBarLiveData.value = true  // Muestra el ProgressBar
         viewModelScope.launch {
             try {
-                 // Llama al caso de uso para obtener los restaurantes
-                // Mapea la lista de Restaurant a Restaurante si es necesario
-
                 _restaurantLiveData.value = getRestaurantsUseCase.execute() // Actualiza el LiveData
             } catch (e: Exception) {
                 _errorLiveData.value = e.message ?: "Error desconocido" // Maneja el error
