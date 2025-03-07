@@ -1,13 +1,17 @@
 package com.example.aplicacionrestaurantes.data.service
 
+import android.content.Context
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -21,18 +25,43 @@ object RetrofitClient {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    // Interceptor para agregar el token JWT en las solicitudes
+    private fun authInterceptor(context: Context): Interceptor {
+        return Interceptor { chain ->
+            val request = chain.request()
+            val sharedPreferences = context.getSharedPreferences("login-info", Context.MODE_PRIVATE)
+            val token = sharedPreferences.getString("jwt_token", null)
+
+            val newRequest = if (token != null) {
+                // Agrega el token en el encabezado Authorization
+                request.newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+            } else {
+                // Si no hay token, procede con la solicitud sin el encabezado
+                request
+            }
+
+            chain.proceed(newRequest)
+        }
+    }
+
     // OkHttpClient que usaremos con Retrofit
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .build()
+    private fun provideOkHttpClient(context: Context): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(logging)  // Interceptor para logs
+            .addInterceptor(authInterceptor(context))  // Interceptor para autenticación
+            .build()
+    }
 
     // Método que proporciona la instancia de ApiService
     @Provides
-    fun provideApiService(): ApiService {
+    @Singleton
+    fun provideApiService(@ApplicationContext context: Context): ApiService {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
+            .client(provideOkHttpClient(context))  // Usa el OkHttpClient con los interceptores
             .build()
             .create(ApiService::class.java)
     }
