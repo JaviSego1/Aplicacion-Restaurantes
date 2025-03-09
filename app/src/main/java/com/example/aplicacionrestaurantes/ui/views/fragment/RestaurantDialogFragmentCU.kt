@@ -20,6 +20,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import com.bumptech.glide.Glide
+import com.example.aplicacionrestaurantes.R
 import com.example.aplicacionrestaurantes.databinding.DialogRestauranteBinding
 import com.example.aplicacionrestaurantes.domain.models.Restaurant
 import java.io.ByteArrayOutputStream
@@ -50,13 +52,12 @@ class RestaurantDialogFragmentCU : DialogFragment() {
         currentRestaurant?.let { restaurant ->
             binding.edtTitulo.setText(restaurant.titulo)
             binding.edtDescripcion.setText(restaurant.descripcion)
-            if (restaurant.imagen.startsWith("data:image")) {
-                val imageBytes = Base64.decode(restaurant.imagen.split(",")[1], Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                binding.imgRestaurante.setImageBitmap(bitmap)
-            } else {
-                loadImageFromResource(restaurant.imagen)
-            }
+
+            // Usamos Glide para cargar la imagen
+            Glide.with(binding.imgRestaurante.context)
+                .load(restaurant.imagen)
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(binding.imgRestaurante)
         }
 
         binding.btnTomarFoto.setOnClickListener { checkCameraPermission() }
@@ -80,35 +81,20 @@ class RestaurantDialogFragmentCU : DialogFragment() {
         }
 
         val imagen = selectedImageUri?.let { uri ->
-            try {
-                val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
-                "data:image/jpeg;base64,${bitmapToBase64(bitmap)}"
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        } ?: currentRestaurant?.imagen ?: "android.resource://${requireContext().packageName}/drawable/alchemist"
+            // Convertir la imagen seleccionada a Bitmap
+            val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            // Convertir el bitmap a Base64
+            bitmapToBase64(bitmap)
+        } ?: currentRestaurant?.imagen
 
         val restaurant = Restaurant(
             id = currentRestaurant?.id ?: 0,
             titulo = titulo,
             descripcion = descripcion,
-            imagen = imagen
+            imagen = imagen ?: "android.resource://${requireContext().packageName}/drawable/alchemist" // Imagen por defecto
         )
 
         onUpdate?.invoke(restaurant)
-    }
-
-    private fun loadImageFromResource(imagen: String) {
-        val resId = context?.resources?.getIdentifier(imagen, "drawable", context?.packageName)
-        resId?.let { binding.imgRestaurante.setImageResource(it) }
-    }
-
-    private fun bitmapToBase64(bitmap: Bitmap): String {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
     private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -181,5 +167,15 @@ class RestaurantDialogFragmentCU : DialogFragment() {
             outputStream?.use { stream -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream) }
         }
         return uri
+    }
+
+    // Método para convertir el bitmap a Base64
+    private fun bitmapToBase64(bitmap: Bitmap): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+            .replace("\n", "")
+            .replace(" ", "")
     }
 }
